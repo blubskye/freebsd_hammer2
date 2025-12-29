@@ -186,7 +186,7 @@ hammer2_init(struct vfsconf *vfsp)
 	KKASSERT(hammer2_zone_rbuf);
 
 	KKASSERT(hammer2_zone_wbuf == NULL);
-	hammer2_zone_wbuf = uma_zcreate("h2wbufzone", HAMMER2_PBUFSIZE / 2,
+	hammer2_zone_wbuf = uma_zcreate("h2wbufzone", HAMMER2_PBUFSIZE >> 1,
 	    NULL, NULL, NULL, NULL, UMA_ALIGN_PTR, 0);
 	KKASSERT(hammer2_zone_wbuf);
 
@@ -2221,7 +2221,7 @@ hammer2_vfs_enospace(hammer2_inode_t *ip, off_t bytes, struct ucred *cred)
 		if ((int64_t)(free_nominal - bytes) < (int64_t)free_reserved)
 			return (2);
 	} else {
-		if ((int64_t)(free_nominal - bytes) < (int64_t)free_reserved / 2)
+		if ((int64_t)(free_nominal - bytes) < (int64_t)(free_reserved >> 1))
 			return (2);
 	}
 

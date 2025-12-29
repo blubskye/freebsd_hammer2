@@ -525,7 +525,7 @@ hammer2_bmap_alloc(hammer2_dev_t *hmp, hammer2_bmap_data_t *bmap,
 		KKASSERT((bmap->linear & (HAMMER2_ALLOC_MIN - 1)) == 0);
 		offset = bmap->linear;
 		i = offset / (HAMMER2_SEGSIZE / HAMMER2_BMAP_ELEMENTS);
-		j = (offset / (HAMMER2_FREEMAP_BLOCK_SIZE / 2)) & 62;
+		j = (offset / (HAMMER2_FREEMAP_BLOCK_SIZE >> 1)) & 62;
 		bmmask = (bmradix == HAMMER2_BMAP_BITS_PER_ELEMENT) ?
 		    HAMMER2_BMAP_ALLONES : ((hammer2_bitmap_t)1 << bmradix) - 1;
 		bmmask <<= j;
@@ -591,7 +591,7 @@ hammer2_bmap_alloc(hammer2_dev_t *hmp, hammer2_bmap_data_t *bmap,
 		return (HAMMER2_ERROR_ENOSPC);
 success:
 		offset = i * (HAMMER2_SEGSIZE / HAMMER2_BMAP_ELEMENTS) +
-		    (j * (HAMMER2_FREEMAP_BLOCK_SIZE / 2));
+		    (j * (HAMMER2_FREEMAP_BLOCK_SIZE >> 1));
 		if (size & HAMMER2_FREEMAP_BLOCK_MASK)
 			bmap->linear = offset + size;
 	}

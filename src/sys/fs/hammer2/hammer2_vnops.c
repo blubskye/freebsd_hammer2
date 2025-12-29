@@ -820,7 +820,7 @@ hammer2_read_file(hammer2_inode_t *ip, struct uio *uio, int ioflag)
 		else
 			error = bread(vp, lbn, lblksize, NOCRED, &bp);
 		KKASSERT(error == 0 || bp == NULL);
-		if (error)
+		if (__predict_false(error))
 			break;
 
 		loff = (int)(uio->uio_offset - lbase);
@@ -830,7 +830,7 @@ hammer2_read_file(hammer2_inode_t *ip, struct uio *uio, int ioflag)
 		if (n > isize - uio->uio_offset)
 			n = (int)(isize - uio->uio_offset);
 		error = uiomove(bp->b_data + loff, n, uio);
-		if (error) {
+		if (__predict_false(error)) {
 			vfs_bio_brelse(bp, ioflag);
 			break;
 		}

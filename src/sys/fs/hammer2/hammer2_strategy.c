@@ -573,8 +573,8 @@ hammer2_compress_and_write(char *data, hammer2_inode_t *ip,
 	char *comp_buffer, *bdata;
 	int comp_size, comp_block_size, comp_level, ret;
 
-	KKASSERT(pblksize / 2 <= 32768);
-	KKASSERT(pblksize / 2 <= HAMMER2_PBUFSIZE / 2);
+	KKASSERT((pblksize >> 1) <= 32768);
+	KKASSERT((pblksize >> 1) <= (HAMMER2_PBUFSIZE >> 1));
 
 	/*
 	 * An all-zeros write creates a hole unless the check code
@@ -619,7 +619,7 @@ hammer2_compress_and_write(char *data, hammer2_inode_t *ip,
 			comp_buffer = uma_zalloc(hammer2_zone_wbuf, M_WAITOK);
 			comp_size = LZ4_compress_limitedOutput(data,
 			    &comp_buffer[sizeof(int)], pblksize,
-			    pblksize / 2 - sizeof(int64_t));
+			    (pblksize >> 1) - sizeof(int64_t));
 			*(int *)comp_buffer = comp_size;
 			if (comp_size)
 				comp_size += sizeof(int);
@@ -641,10 +641,10 @@ hammer2_compress_and_write(char *data, hammer2_inode_t *ip,
 			strm_compress.next_in = data;
 			strm_compress.avail_in = pblksize;
 			strm_compress.next_out = comp_buffer;
-			strm_compress.avail_out = pblksize / 2;
+			strm_compress.avail_out = pblksize >> 1;
 			ret = deflate(&strm_compress, Z_FINISH);
 			if (ret == Z_STREAM_END)
-				comp_size = pblksize / 2 -
+				comp_size = (pblksize >> 1) -
 				    strm_compress.avail_out;
 			else
 				comp_size = 0;
